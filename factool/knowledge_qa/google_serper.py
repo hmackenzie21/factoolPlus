@@ -109,8 +109,16 @@ class GoogleSerperAPIWrapper():
 
         results = await self.parallel_searches(flattened_queries, gl=self.gl, hl=self.hl)
         snippets_list = []
-        for i in range(len(results)):
-            snippets_list.append(self._parse_results(results[i]))
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                print(f"[Warning] Search query '{flattened_queries[i]}' failed with error: {result}")
+                snippets_list.append([{"content": "Search failed", "source": "None"}])
+            elif isinstance(result, dict):
+                snippets_list.append(self._parse_results(result))
+            else:
+                print(f"[Warning] Unexpected result type: {type(result)} — skipping.")
+                snippets_list.append([{"content": "Unexpected result format", "source": "None"}])
+        
         snippets_split = [snippets_list[i] + snippets_list[i+1] for i in range(0, len(snippets_list), 2)]
         return snippets_split
     
