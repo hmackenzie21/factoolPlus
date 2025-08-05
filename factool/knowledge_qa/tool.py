@@ -1,15 +1,23 @@
 import asyncio
-from factool.knowledge_qa.google_serper import GoogleSerperAPIWrapper
+import os
+from factool.knowledge_qa.searxng_wrapper import SearXNGAPIWrapper
 from factool.utils.openai_wrapper import OpenAIEmbed
 import json
-import os
 import numpy as np
 import jsonlines
 import pdb
 
-class google_search():
+class web_search():
     def __init__(self, snippet_cnt):
-        self.serper = GoogleSerperAPIWrapper(snippet_cnt=snippet_cnt)
+        """
+        Initialize search with SearXNG only.
+        
+        Args:
+            snippet_cnt: Number of snippets to return
+        """
+        self.snippet_cnt = snippet_cnt
+        print("Using SearXNG for web search")
+        self.serper = SearXNGAPIWrapper(snippet_cnt=snippet_cnt)
 
     async def run(self, queries):
         return await self.serper.run(queries)
@@ -83,9 +91,3 @@ class local_search():
         snippets = await asyncio.gather(*[self.search(query) for query in flattened_queries])
         snippets_split = [snippets[i] + snippets[i+1] for i in range(0, len(snippets), 2)]
         return snippets_split
-
-
-
-
-
-
