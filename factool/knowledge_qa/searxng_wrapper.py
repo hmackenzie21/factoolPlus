@@ -1,35 +1,25 @@
-"""
-SearXNG Wrapper for FacTool
-Implements the same interface as GoogleSerperAPIWrapper
-"""
 import asyncio
 import aiohttp
-import json
 import os
 import logging
 from typing import List, Dict, Any
 
 
 class SearXNGAPIWrapper:
-    """
-    Wrapper around SearXNG that implements the same interface as GoogleSerperAPIWrapper
-    This allows it to be a drop-in replacement for the Serper API.
-    """
-    
+
     def __init__(self, snippet_cnt=10, searxng_url=None):
         self.k = snippet_cnt
-        self.gl = "us"  # Keep same interface as GoogleSerperAPIWrapper
-        self.hl = "en"  # Keep same interface as GoogleSerperAPIWrapper
+        self.gl = "us" 
+        self.hl = "en"
         
-        # Get SearXNG URL from environment or parameter
+        # Get SearXNG URL 
         self.searxng_url = searxng_url or os.environ.get("SEARXNG_URL", "http://localhost:8080")
         self.searxng_url = self.searxng_url.rstrip('/')
         
-        # Test connection on initialization
+        # Test connection to SearXNG
         self._test_connection()
     
     def _test_connection(self):
-        """Test if SearXNG instance is accessible"""
         try:
             import requests
             response = requests.get(f"{self.searxng_url}/config", timeout=5)
@@ -70,14 +60,11 @@ class SearXNGAPIWrapper:
     
     def _parse_results(self, results):
         """
-        Parse SearXNG results into the same format as GoogleSerperAPIWrapper
-        
-        Expected output format (matching GoogleSerperAPIWrapper):
+        Expected output format:
         [{"content": str, "source": str}, ...]
         """
         snippets = []
         
-        # SearXNG returns results in 'results' key
         searxng_results = results.get('results', [])
         
         if not searxng_results:
@@ -95,11 +82,11 @@ class SearXNGAPIWrapper:
                 }
                 snippets.append(element)
         
-        # If no snippets found, return default message
+        # Default message if nothing found
         if len(snippets) == 0:
             return [{"content": "No good Search Result was found", "source": "None"}]
         
-        # Limit to k/2 snippets to match GoogleSerperAPIWrapper behavior
+        # Limiting to k/2 snippets to match GoogleSerperAPIWrapper which this file replaces
         snippets = snippets[:int(self.k / 2)]
         
         return snippets
@@ -119,15 +106,14 @@ class SearXNGAPIWrapper:
     
     async def run(self, queries):
         """
-        Main run method that matches GoogleSerperAPIWrapper interface exactly
-        
+        Main run method
         Args:
             queries: List of query pairs, e.g. [['query1a', 'query1b'], ['query2a', 'query2b']]
         
         Returns:
             List of snippet lists, matching GoogleSerperAPIWrapper format
         """
-        # Flatten queries (same logic as GoogleSerperAPIWrapper)
+        # Flatten queries
         flattened_queries = []
         for sublist in queries:
             if sublist is None:
@@ -150,7 +136,7 @@ class SearXNGAPIWrapper:
                 print(f"[Warning] Unexpected result type: {type(result)} — skipping.")
                 snippets_list.append([{"content": "Unexpected result format", "source": "None"}])
         
-        # Split results back into pairs (same logic as GoogleSerperAPIWrapper)
+        # Split results in5o pairs
         snippets_split = [
             snippets_list[i] + snippets_list[i+1] 
             for i in range(0, len(snippets_list), 2)
@@ -159,12 +145,11 @@ class SearXNGAPIWrapper:
         return snippets_split
 
 
-# Test function
 if __name__ == "__main__":
     async def test_searxng():
         search = SearXNGAPIWrapper(snippet_cnt=10)
         
-        # Test with single query pair (matching GoogleSerperAPIWrapper test)
+        # Test with single query pair 
         test_queries = [["What is the capital of the United States?", "US capital city"]]
         results = await search.run(test_queries)
         
