@@ -3,8 +3,8 @@ factool_instance = Factool("gpt-4")
 
 inputs = [
     {
-        "prompt": "What is Donald Trump's most recent statement on Ukraine?",
-        "response": "President Donald Trump vowed to ‘get it done’ and end the war in Ukraine on Truth Social",
+        "prompt": "What is the capital city of France?",
+        "response": "The capital city of France is Paris.",
         "category": "kbqa"
     },
 ]

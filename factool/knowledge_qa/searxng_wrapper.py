@@ -2,7 +2,6 @@ import asyncio
 import aiohttp
 import os
 import logging
-from typing import List, Dict, Any
 
 
 class SearXNGAPIWrapper:
